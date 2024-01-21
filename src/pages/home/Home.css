@@ -1,0 +1,13 @@
+body {
+    background-color: aliceblue;
+}
+
+h6 {
+    text-align: start;
+    font-weight: bold;
+}
+
+.text-secondary {
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
