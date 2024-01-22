@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import './Home.css';
 import ReptileItem from '../../components/reptiles/ReptileItem';
+import ReptileApi from '../../api/ReptileApi';
 
 const itemsPerPage = 6;
 
@@ -17,15 +18,15 @@ function Home() {
 
     // Fetch data from fake server
     useEffect(() => {
-        fetch("http://localhost:8000/reptiles")
-            .then((res) => res.json())
-            .then((json) => {
+        ReptileApi.fetchReptiles(
+            (json) => {
                 setError(null);
                 setData(json);
-            })
-            .catch((err) => {
+            },
+            (err) => {
                 setError(err);
-            });
+            }
+        );
     }, []);
 
     // Update list every time page changes
@@ -42,17 +43,33 @@ function Home() {
         setList(data.slice(0, itemsPerPage));
     }, [data]);
 
+    // Filter listener
+    useEffect(() => {
+        const tempList = data.filter(i => (
+            (filters.venomousOnly === true ? i.isVenomous === filters.venomousOnly : true) &&
+            (filters.endangeredOnly === true ? i.isEndangered === filters.endangeredOnly : true) &&
+            (filters.reptileType !== "ALL" ? i.type === filters.reptileType : true)
+        ));
+
+        setPage(0);
+        const startIndex = page * itemsPerPage;
+        const endIndex = startIndex + itemsPerPage;
+        const displayedData = tempList.slice(startIndex, endIndex);
+
+        setList(displayedData);
+        setPageCount(Math.ceil(tempList.length / itemsPerPage));
+    }, [filters])
 
     const onFilterVenomousOnlyClick = () => {
-        setFilters({ venomousOnly: !filters.venomousOnly });
+        setFilters({ ...filters, venomousOnly: !filters.venomousOnly });
     }
 
     const onFilterEndangeredOnlyClick = () => {
-        setFilters({ endangeredOnly: !filters.endangeredOnly });
+        setFilters({ ...filters, endangeredOnly: !filters.endangeredOnly });
     }
 
     const onFilterReptileTypeClick = (type) => {
-        setFilters({ reptileType: type });
+        setFilters({ ...filters, reptileType: type });
     }
 
     const handlePageChange = (p) => {
@@ -86,41 +103,41 @@ function Home() {
 
                     {/* Venomous */}
                     <div className={viewVisibility.filterDropDown == true ? "dropdown-menu show" : "dropdown-menu"} aria-labelledby="dropdownMenuButton" style={{ right: "0" }}>
-                        <a className='dropdown-item' onClick={onFilterVenomousOnlyClick}>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch" id="switchVenomousOnly" />
-                                <label class="form-check-label" for="switchVenomousOnly">მხოლოდ შხამიანები</label>
+                        <a className='dropdown-item'>
+                            <div className="form-check form-switch">
+                                <input onClick={onFilterVenomousOnlyClick} className="form-check-input" type="checkbox" role="switch" id="switchVenomousOnly" checked={filters.venomousOnly} />
+                                <label className="form-check-label" for="switchVenomousOnly">შხამიანები</label>
                             </div>
                         </a>
 
                         {/* Endangered Species */}
-                        <a className='dropdown-item' onClick={onFilterEndangeredOnlyClick}>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" role="switch" id="switchEndangeredOnly" />
-                                <label class="form-check-label" for="switchEndangeredOnly">წითელ წიგნში შეტანილები</label>
+                        <a className='dropdown-item'>
+                            <div className="form-check form-switch">
+                                <input onClick={onFilterEndangeredOnlyClick} className="form-check-input" type="checkbox" role="switch" id="switchEndangeredOnly" checked={filters.endangeredOnly} />
+                                <label className="form-check-label" for="switchEndangeredOnly">წითელ წიგნში შეტანილი</label>
                             </div>
                         </a>
 
-                        <div class="dropdown-divider"></div>
+                        <div className="dropdown-divider"></div>
 
                         {/* Reptile Type */}
-                        <h6 class="dropdown-header">ტიპი</h6>
+                        <h6 className="dropdown-header">ტიპი</h6>
                         <a className='dropdown-item'>
-                            <div class="form-check" onClick={() => onFilterReptileTypeClick("ALL")}>
-                                <input class="form-check-input" type="radio" name="exampleRadios" id="radioTypeAll" value="ALL" checked={filters.reptileType == "ALL"} />
-                                <label class="form-check-label" for="radioTypeAll">
+                            <div className="form-check" onClick={() => onFilterReptileTypeClick("ALL")}>
+                                <input className="form-check-input" type="radio" name="exampleRadios" id="radioTypeAll" value="ALL" checked={filters.reptileType == "ALL"} />
+                                <label className="form-check-label" for="radioTypeAll">
                                     ყველა
                                 </label>
                             </div>
-                            <div class="form-check" onClick={() => onFilterReptileTypeClick("SNAKE")}>
-                                <input class="form-check-input" type="radio" name="exampleRadios" id="radioTypeSnakes" value="SNAKE" checked={filters.reptileType == "SNAKE"} />
-                                <label class="form-check-label" for="radioTypeSnakes">
+                            <div className="form-check" onClick={() => onFilterReptileTypeClick("SNAKE")}>
+                                <input className="form-check-input" type="radio" name="exampleRadios" id="radioTypeSnakes" value="SNAKE" checked={filters.reptileType == "SNAKE"} />
+                                <label className="form-check-label" for="radioTypeSnakes">
                                     გველი
                                 </label>
                             </div>
-                            <div class="form-check" onClick={() => onFilterReptileTypeClick("LIZARD")}>
-                                <input class="form-check-input" type="radio" name="exampleRadios" id="radioTypeLizards" value="LIZARD" checked={filters.reptileType == "LIZARD"} />
-                                <label class="form-check-label" for="radioTypeLizards">
+                            <div className="form-check" onClick={() => onFilterReptileTypeClick("LIZARD")}>
+                                <input className="form-check-input" type="radio" name="exampleRadios" id="radioTypeLizards" value="LIZARD" checked={filters.reptileType == "LIZARD"} />
+                                <label className="form-check-label" for="radioTypeLizards">
                                     ხვლიკი
                                 </label>
                             </div>

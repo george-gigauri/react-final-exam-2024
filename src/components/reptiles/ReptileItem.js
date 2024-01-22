@@ -32,11 +32,11 @@ function ReptileItem({
 
                         <div className="card-body" style={{ marginTop: "5px" }}>
                             <b className="h6"><b>{name}</b></b>
-                            <span className="card-text" style={{ marginTop: "3px"}}>{scientificName}</span>
+                            <span className="card-text" style={{ marginTop: "3px" }}>{scientificName}</span>
                         </div>
                     </div>
 
-                    <a href={'/reptiles/' + id + '/details'} className="btn rounded-pill btn-primary" style={{ margin: "0px 0px 5px 0px" }}>დეტალურად</a>
+                    <a href={'/reptiles/' + id} className="btn rounded-pill btn-primary" style={{ margin: "0px 0px 5px 0px" }}>დეტალურად</a>
                 </div>
             </a>
         </div>

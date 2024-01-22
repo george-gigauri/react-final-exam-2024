@@ -1,0 +1,9 @@
+.login-form {
+    width: 20rem;
+    height: auto;
+    background-color: white;
+    border-radius: 15px;
+    margin: auto;
+    border-color: gray;
+    margin-top: 10%;
+}
