@@ -90,5 +90,6 @@
       "isVenomous": false,
       "type": "LIZARD"
     }
-  ]
+  ],
+  "users": []
 }

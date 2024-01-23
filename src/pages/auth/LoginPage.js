@@ -1,23 +1,76 @@
-import React from 'react'
+import React, { useState } from 'react'
 import './LoginPage.css'
+import ReptileApi from '../../api/ReptileApi';
+import AuthApi from '../../api/AuthApi';
+
+const usernameRegex = /^[a-z_.-]+$/;
+const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
 
 function LoginPage() {
+
+    const [username, setUsername] = useState(null);
+    const [password, setPassword] = useState(null);
+    const [error, setError] = useState(null);
+
+    const handleUsernameChange = (event) => {
+        setUsername(event.target.value);
+        console.log(event.target.value);
+    }
+
+    const handlePasswordChange = (event) => {
+        setPassword(event.target.value);
+        console.log(event.target.value);
+    }
+
+    const signIn = () => {
+        if (validateFields()) {
+            AuthApi.signIn(
+                { username: username, password: password },
+                () => {
+                    alert("Login Success!");
+                },
+                (err) => {
+                    setError(err);
+                    console.log("Error: " + err)
+                }
+            )
+        }
+    }
+
+    const validateFields = () => {
+        if (!usernameRegex.test(username)) {
+            setError("მომხმარებლის სახელი არასწორ ფორმატშია, გამოიყენეთ პატარა (lowercase) ლათინური ასოები და მხოლოდ შემდეგი სიმბოლოები: _ - .");
+            return false;
+        }
+
+        if (!passwordRegex.test(password)) {
+            setError("პაროლის ფორმატი არასწორია, პაროლი უნდა შედგებოდეს მინიმუმ 6 ასოსგან, აქედან მინიმუმ 1 დიდი (UPPERCASE) და მინიმუმ 1 სიმბოლო უნდა იყოს.");
+            return false;
+        }
+
+        return true;
+    }
+
     return (
         <>
-            <div class="login-form">
-                <div class="alert alert-danger" role="alert">
-                    <span></span>
-                </div>
-                <form method="post" style={{ marginTop: "10px" }}>
-                    <h2 class="text-center">ავტორიზაცია</h2>
-                    <div class="form-group" style={{ marginTop: "10px" }}>
-                        <input class="form-control" name="email" placeholder="ელ. ფოსტა" required="required" type="text" />
+            <div className="login-form">
+                {
+                    error !== null && error !== '' && error !== undefined ?
+                        <div className="alert alert-danger" role="alert">
+                            <span style={{ color: "red" }}>{error}</span>
+                        </div>
+                        : <div></div>
+                }
+                <form style={{ marginTop: "10px" }}>
+                    <h2 className="text-center">ავტორიზაცია</h2>
+                    <div className="form-group" style={{ marginTop: "10px" }}>
+                        <input className="form-control" name="username" placeholder="მომხმარებლის სახელი" required="required" type="username" onChange={handleUsernameChange} />
                     </div>
-                    <div class="form-group" style={{ marginTop: "10px" }}>
-                        <input class="form-control" name="password" placeholder="პაროლი" required="required" type="password" />
+                    <div className="form-group" style={{ marginTop: "10px" }}>
+                        <input className="form-control" name="password" placeholder="პაროლი" required="required" type="password" onChange={handlePasswordChange} />
                     </div>
-                    <div class="form-group" >
-                        <button class="btn btn-primary btn-block" style={{ width: "100%", marginTop: "10px" }} type="submit">ავტორიზაცია</button>
+                    <div className="form-group" >
+                        <button className="btn btn-primary btn-block" style={{ width: "100%", marginTop: "10px" }} type="button" onClick={signIn}>ავტორიზაცია</button>
                     </div>
                 </form>
             </div>

@@ -29,14 +29,6 @@ function Home() {
         );
     }, []);
 
-    // Update list every time page changes
-    useEffect(() => {
-        const startIndex = page * itemsPerPage;
-        const endIndex = startIndex + itemsPerPage;
-        const displayedData = data.slice(startIndex, endIndex);
-        setList(displayedData);
-    }, [page]);
-
     // Set page count when data is retrieved
     useEffect(() => {
         setPageCount(Math.ceil(data.length / itemsPerPage));
@@ -51,14 +43,17 @@ function Home() {
             (filters.reptileType !== "ALL" ? i.type === filters.reptileType : true)
         ));
 
-        setPage(0);
+        setPageCount(Math.ceil(tempList.length / itemsPerPage));
+        if (pages < 1) {
+            setPage(0);
+        }
+
         const startIndex = page * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
         const displayedData = tempList.slice(startIndex, endIndex);
 
         setList(displayedData);
-        setPageCount(Math.ceil(tempList.length / itemsPerPage));
-    }, [filters])
+    }, [page, filters])
 
     const onFilterVenomousOnlyClick = () => {
         setFilters({ ...filters, venomousOnly: !filters.venomousOnly });

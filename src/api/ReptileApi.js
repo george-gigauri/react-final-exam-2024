@@ -1,17 +1,16 @@
+import Const from "../util/Const";
 
 class ReptileApi {
 
-    static BASE_URL = "http://localhost:8000"
-
     static async fetchReptiles(onSuccess, onError) {
-        fetch(this.BASE_URL + "/reptiles")
+        fetch(Const.SERVER_BASE_URL + `/reptiles`)
             .then((res) => res.json())
             .then((json) => onSuccess(json))
             .catch((err) => onError(err));
     }
 
     static async fetchReptile(id, onSuccess, onError) {
-        fetch(this.BASE_URL + "/reptiles/" + id)
+        fetch(Const.SERVER_BASE_URL + "/reptiles/" + id)
             .then((res) => res.json())
             .then((json) => onSuccess(json))
             .catch((err) => onError(err));
@@ -26,9 +25,10 @@ class ReptileApi {
             isEndangered,
             isVenomous,
             type
-        }
+        },
+        onSuccess, onFailure
     ) {
-        fetch(this.BASE_URL + "/add", {
+        fetch(Const.SERVER_BASE_URL + "/add", {
             method: "POST",
             body: {
                 name: name,
@@ -39,9 +39,14 @@ class ReptileApi {
                 isVenomous: isVenomous,
                 type: type
             }
-        }).then((res) => res.json())
-            .then((json) => { })
-            .catch((err) => { })
+        }).then((res) => {
+            let json = res.json();
+            if (res.ok) {
+                onSuccess(json);
+            } else {
+                onFailure(json.error);
+            }
+        }).catch((err) => { onFailure("შეცდომა"); })
     }
 }
 
