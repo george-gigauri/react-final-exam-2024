@@ -8,19 +8,19 @@ const verifyToken = (req, res, next) => {
   const { headers } = req;
 
   if (!headers.authorization) {
-    return res.status(400).send({ msg: "No Authorization header passed" });
+    return res.status(400).send({ error: "ავტორიზაციის ტოკენის შევსება სავალდებულოა" });
   }
 
   const [type, token] = headers.authorization.split(" ");
 
-  if (type !== "Bearer" || !token) {
-    return res.status(401).send({ msg: "Incorrect token or no token passed" });
+  if (type !== "JWT" || !token) {
+    return res.status(401).send({ error: "ავტორიზაციის ტოკენი ვადაგასულია ან არასწორია" });
   }
   try {
     const decoded = jwt.verify(token, TOKEN_SECRET);
     req.user = decoded;
   } catch (err) {
-    return res.status(401).send({ msg: "Invalid authorization info" });
+    return res.status(401).send({ error: "არ ხართ ავტორიზებული" });
   }
   return next();
 };

@@ -1,4 +1,5 @@
 import Const from "../util/Const";
+import UserUtil from "../util/UserUtil";
 
 class ReptileApi {
 
@@ -28,9 +29,13 @@ class ReptileApi {
         },
         onSuccess, onFailure
     ) {
-        fetch(Const.SERVER_BASE_URL + "/add", {
+        let r = await fetch(Const.SERVER_BASE_URL + "/reptiles/create-new", {
             method: "POST",
-            body: {
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `JWT ${UserUtil.getCurrentToken()}`
+            },
+            body: JSON.stringify({
                 name: name,
                 scientificName: scientificName,
                 description: description,
@@ -38,15 +43,15 @@ class ReptileApi {
                 isEndangered: isEndangered,
                 isVenomous: isVenomous,
                 type: type
-            }
-        }).then((res) => {
-            let json = res.json();
-            if (res.ok) {
-                onSuccess(json);
-            } else {
-                onFailure(json.error);
-            }
-        }).catch((err) => { onFailure("შეცდომა"); })
+            })
+        });
+
+        let json = await r.json();
+        if (r.ok) {
+            onSuccess(json);
+        } else {
+            onFailure(json.error);
+        }
     }
 }
 

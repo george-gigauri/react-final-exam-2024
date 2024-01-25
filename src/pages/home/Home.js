@@ -146,6 +146,7 @@ function Home() {
                     {
                         list.map(i =>
                             <ReptileItem
+                                key={i.id}
                                 id={i.id}
                                 name={i.name}
                                 scientificName={i.scientificName}

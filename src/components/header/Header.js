@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import './Header.css'
 import { Navbar, Container, Nav, Modal, Button, Dropdown, Row } from 'react-bootstrap'
+import UserUtil from '../../util/UserUtil'
 
 export default function Header() {
   return (
@@ -14,7 +15,20 @@ export default function Header() {
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav>
             <Nav.Link href="/">მთავარი</Nav.Link>
-            <Nav.Link href="/login">შესვლა</Nav.Link>
+            <Nav.Link href="/reptiles/create">დამატება</Nav.Link>
+            {
+              (() => {
+                if (UserUtil.isSignedIn()) {
+                  return (
+                    <Nav.Link href="/" onClick={() => { UserUtil.logOut() }}>გასვლა</Nav.Link>
+                  )
+                } else {
+                  return (
+                    <Nav.Link href="/login">შესვლა</Nav.Link>
+                  )
+                }
+              })()
+            }
           </Nav>
         </Navbar.Collapse>
       </Container>
