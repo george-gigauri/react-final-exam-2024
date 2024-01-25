@@ -35,11 +35,26 @@ function Home() {
 
     // Filter listener
     useEffect(() => {
+        // Filtering and sorting fetched list
         const tempList = data.filter(i => (
             (filters.venomousOnly === true ? i.isVenomous === filters.venomousOnly : true) &&
             (filters.endangeredOnly === true ? i.isEndangered === filters.endangeredOnly : true) &&
             (filters.reptileType !== "ALL" ? i.type === filters.reptileType : true)
-        )).sort(i => i);
+        )).sort((i, j) => (() => {
+            if (sortBy.isVenomous != null) {
+                return (sortBy.isVenomous === "ASC" ? (i.isVenomous - j.isVenomous) : (j.isVenomous - i.isVenomous));
+            } else if (sortBy.isEndangered != null) {
+                return (sortBy.isEndangered === "ASC" ? (i.isEndangered - j.isEndangered) : (j.isEndangered - i.isEndangered));
+            } else if (sortBy.type != null) {
+                return (() => {
+                    const typeComparison = i.type.localeCompare(j.type);
+                    return sortBy.type === "ASC" ? typeComparison : -typeComparison;
+                })();
+            } else {
+                return i.id - j.id;
+            }
+        }
+        )());
 
         setPageCount(Math.ceil(tempList.length / itemsPerPage));
         if (pages < 1) {
@@ -51,7 +66,7 @@ function Home() {
         const displayedData = tempList.slice(startIndex, endIndex);
 
         setList(displayedData);
-    }, [page, filters])
+    }, [page, filters, sortBy])
 
     const onFilterReptileTypeClick = (type) => {
         setFilters({ ...filters, reptileType: type });
@@ -87,7 +102,7 @@ function Home() {
                             data-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded={viewVisibility.filterDropDown}
-                            onClick={() => { setViewVisibility({ ...viewVisibility, filterDropDown: !viewVisibility.filterDropDown }) }}>
+                            onClick={() => { setViewVisibility({ ...viewVisibility, filterDropDown: !viewVisibility.filterDropDown, sortDropDown: false }) }}>
                             გაფილტვრა
                         </button>
 
@@ -148,31 +163,43 @@ function Home() {
                             data-toggle="dropdown"
                             aria-haspopup="true"
                             aria-expanded={viewVisibility.sortDropDown}
-                            onClick={() => { setViewVisibility({ ...viewVisibility, sortDropDown: !viewVisibility.sortDropDown }) }}>
+                            onClick={() => { setViewVisibility({ ...viewVisibility, sortDropDown: !viewVisibility.sortDropDown, filterDropDown: false }) }}>
                             სორტირება
                         </button>
 
                         <div className={viewVisibility.sortDropDown == true ? "dropdown-menu show" : "dropdown-menu"} aria-labelledby="sortDropDownButton" for="sortDropDownButton" style={{ right: "0" }}>
                             {/* Venomous ^ */}
                             <a className='dropdown-item' onClick={() => { setSortBy({ isVenomous: "ASC" }) }}>
-                                <label className="form-check-label" for="switchVenomousOnly">შხამიანი ^</label>
+                                <label className="form-check-label">შხამიანი ↾</label>
                             </a>
 
                             {/* Venomous v */}
                             <a className='dropdown-item' onClick={() => { setSortBy({ isVenomous: "DESC" }) }}>
-                                <label className="form-check-label" for="switchVenomousOnly">შხამიანი v</label>
+                                <label className="form-check-label">შხამიანი ⇂</label>
+                            </a>
+
+                            <div className="dropdown-divider"></div>
+
+                            {/* Endangered ^ */}
+                            <a className='dropdown-item' onClick={() => { setSortBy({ isEndangered: "ASC" }) }}>
+                                <label className="form-check-label">წითელ წიგნში ↾</label>
+                            </a>
+
+                            {/* Endangered v */}
+                            <a className='dropdown-item' onClick={() => { setSortBy({ isEndangered: "DESC" }) }}>
+                                <label className="form-check-label">წითელ წიგნში ⇂</label>
                             </a>
 
                             <div className="dropdown-divider"></div>
 
                             {/* Type ^ */}
                             <a className='dropdown-item' onClick={() => { setSortBy({ type: "ASC" }) }}>
-                                <label className="form-check-label" for="switchVenomousOnly">ტიპი ^</label>
+                                <label className="form-check-label">ტიპი ↾</label>
                             </a>
 
                             {/* Type v */}
                             <a className='dropdown-item' onClick={() => { setSortBy({ type: "DESC" }) }}>
-                                <label className="form-check-label" for="switchVenomousOnly">ტიპი v</label>
+                                <label className="form-check-label">ტიპი ⇂</label>
                             </a>
 
                         </div>
