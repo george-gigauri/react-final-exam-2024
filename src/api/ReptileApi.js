@@ -14,13 +14,13 @@ class ReptileApi {
         { page, pageSize, filters, sortBy },
         onSuccess, onError
     ) {
-        const filtersQuery = Object.keys(filters)
+        const filtersQuery = (filters != null) ? Object.keys(filters)
             .map(key => `${encodeURIComponent('filters[' + key + ']')}=${encodeURIComponent(filters[key])}`)
-            .join('&');
+            .join('&') : "";
 
-        const sortbyQuery = Object.keys(sortBy)
+        const sortbyQuery = (sortBy != null) ? Object.keys(sortBy)
             .map(key => `${encodeURIComponent('sortBy[' + key + ']')}=${encodeURIComponent(sortBy[key])}`)
-            .join('&');
+            .join('&') : "";
 
         fetch(`${Const.SERVER_BASE_URL}/reptiles/get-all?page=${page}&pageSize=${pageSize}&${filtersQuery}&${sortbyQuery}`)
             .then((res) => res.json())

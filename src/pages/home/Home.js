@@ -15,7 +15,14 @@ function Home() {
     const [data, setData] = useState([]);
     const [list, setList] = useState([]);
 
+    // For Server-Side Pagination
+    // !!! Comment below code if you uncomment Client-side pagination !!!
     useEffect(() => {
+        if (page < 0) {
+            setPage(0);
+            return;
+        }
+
         ReptileApi.fetchReptilesPaging(
             {
                 page: page < 0 ? 0 : page,
@@ -37,7 +44,9 @@ function Home() {
         setPage((prevState) => prevState === 0 ? -1 : 0);
     }, [filters, sortBy]);
 
-    // // Fetch data from fake server
+    // For Client-Side Pagination
+    // !!! Comment below code if you uncomment Server-side pagination !!!
+    
     // useEffect(() => {
     //     ReptileApi.fetchReptiles(
     //         (json) => {

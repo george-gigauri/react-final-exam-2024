@@ -8,8 +8,6 @@ class ReptileService {
         filters, sortBy
     }, onSuccess, onError) {
 
-        console.log(JSON.stringify(sortBy));
-
         if (page < 0) {
             page = 0;
         }
