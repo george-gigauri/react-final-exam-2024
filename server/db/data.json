@@ -148,6 +148,27 @@
       "lastName": "test",
       "password": "Admin123!",
       "id": 1
+    },
+    {
+      "username": "george_gigauri",
+      "firstName": "Giorgi",
+      "lastName": "Gigauri",
+      "password": "Giorgi123!",
+      "id": 2
+    },
+    {
+      "username": "nika_gigauri",
+      "firstName": "Nika",
+      "lastName": "Gigauri",
+      "password": "Nika123!",
+      "id": 3
+    },
+    {
+      "username": "gio_gio",
+      "firstName": "Gio",
+      "lastName": "Gio",
+      "password": "GioGio123!",
+      "id": 4
     }
   ]
 }

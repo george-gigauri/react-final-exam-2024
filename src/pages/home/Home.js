@@ -15,58 +15,80 @@ function Home() {
     const [data, setData] = useState([]);
     const [list, setList] = useState([]);
 
-    // Fetch data from fake server
     useEffect(() => {
-        ReptileApi.fetchReptiles(
-            (json) => {
-                setData(json);
+        ReptileApi.fetchReptilesPaging(
+            {
+                page: page < 0 ? 0 : page,
+                pageSize: itemsPerPage,
+                filters: filters,
+                sortBy: sortBy
             },
-            (err) => {
-                alert(err);
+            (d) => {
+                setList(d.data);
+                setPageCount(d.pageCount);
+            },
+            (error) => {
+                alert(error.error);
             }
         );
-    }, []);
+    }, [page]);
 
-    // Set page count when data is retrieved
     useEffect(() => {
-        setPageCount(Math.ceil(data.length / itemsPerPage));
-        setList(data.slice(0, itemsPerPage));
-    }, [data]);
+        setPage((prevState) => prevState === 0 ? -1 : 0);
+    }, [filters, sortBy]);
 
-    // Filter listener
-    useEffect(() => {
-        // Filtering and sorting fetched list
-        const tempList = data.filter(i => (
-            (filters.venomousOnly === true ? i.isVenomous === filters.venomousOnly : true) &&
-            (filters.endangeredOnly === true ? i.isEndangered === filters.endangeredOnly : true) &&
-            (filters.reptileType !== "ALL" ? i.type === filters.reptileType : true)
-        )).sort((i, j) => (() => {
-            if (sortBy.isVenomous != null) {
-                return (sortBy.isVenomous === "ASC" ? (i.isVenomous - j.isVenomous) : (j.isVenomous - i.isVenomous));
-            } else if (sortBy.isEndangered != null) {
-                return (sortBy.isEndangered === "ASC" ? (i.isEndangered - j.isEndangered) : (j.isEndangered - i.isEndangered));
-            } else if (sortBy.type != null) {
-                return (() => {
-                    const typeComparison = i.type.localeCompare(j.type);
-                    return sortBy.type === "ASC" ? typeComparison : -typeComparison;
-                })();
-            } else {
-                return i.id - j.id;
-            }
-        }
-        )());
+    // // Fetch data from fake server
+    // useEffect(() => {
+    //     ReptileApi.fetchReptiles(
+    //         (json) => {
+    //             setData(json);
+    //         },
+    //         (err) => {
+    //             alert(err);
+    //         }
+    //     );
+    // }, []);
 
-        setPageCount(Math.ceil(tempList.length / itemsPerPage));
-        if (pages < 1) {
-            setPage(0);
-        }
+    // // Set page count when data is retrieved
+    // useEffect(() => {
+    //     setPageCount(Math.ceil(data.length / itemsPerPage));
+    //     setList(data.slice(0, itemsPerPage));
+    // }, [data]);
 
-        const startIndex = page * itemsPerPage;
-        const endIndex = startIndex + itemsPerPage;
-        const displayedData = tempList.slice(startIndex, endIndex);
+    // // Filter listener
+    // useEffect(() => {
+    //     // Filtering and sorting fetched list
+    //     const tempList = data.filter(i => (
+    //         (filters.venomousOnly === true ? i.isVenomous === filters.venomousOnly : true) &&
+    //         (filters.endangeredOnly === true ? i.isEndangered === filters.endangeredOnly : true) &&
+    //         (filters.reptileType !== "ALL" ? i.type === filters.reptileType : true)
+    //     )).sort((i, j) => (() => {
+    //         if (sortBy.isVenomous != null) {
+    //             return (sortBy.isVenomous === "ASC" ? (i.isVenomous - j.isVenomous) : (j.isVenomous - i.isVenomous));
+    //         } else if (sortBy.isEndangered != null) {
+    //             return (sortBy.isEndangered === "ASC" ? (i.isEndangered - j.isEndangered) : (j.isEndangered - i.isEndangered));
+    //         } else if (sortBy.type != null) {
+    //             return (() => {
+    //                 const typeComparison = i.type.localeCompare(j.type);
+    //                 return sortBy.type === "ASC" ? typeComparison : -typeComparison;
+    //             })();
+    //         } else {
+    //             return i.id - j.id;
+    //         }
+    //     }
+    //     )());
 
-        setList(displayedData);
-    }, [page, filters, sortBy])
+    //     setPageCount(Math.ceil(tempList.length / itemsPerPage));
+    //     if (pages < 1) {
+    //         setPage(0);
+    //     }
+
+    //     const startIndex = page * itemsPerPage;
+    //     const endIndex = startIndex + itemsPerPage;
+    //     const displayedData = tempList.slice(startIndex, endIndex);
+
+    //     setList(displayedData);
+    // }, [page, filters, sortBy])
 
     const onFilterReptileTypeClick = (type) => {
         setFilters({ ...filters, reptileType: type });
@@ -79,7 +101,7 @@ function Home() {
                 id,
                 () => {
                     alert("ჩანაწერი წარმატებით წაიშალა!");
-                    window.location.href = "/"
+                    window.location.href = "/";
                 },
                 (error) => {
                     alert(error);
@@ -111,7 +133,7 @@ function Home() {
                             <a className='dropdown-item'>
                                 <div className="form-check form-switch">
                                     <input onClick={() => { setFilters({ ...filters, venomousOnly: !filters.venomousOnly }); }} className="form-check-input" type="checkbox" role="switch" id="switchVenomousOnly" checked={filters.venomousOnly} />
-                                    <label className="form-check-label" for="switchVenomousOnly">შხამიანები</label>
+                                    <label className="form-check-label" htmlFor="switchVenomousOnly">შხამიანები</label>
                                 </div>
                             </a>
 
@@ -119,7 +141,7 @@ function Home() {
                             <a className='dropdown-item'>
                                 <div className="form-check form-switch">
                                     <input onClick={() => { setFilters({ ...filters, endangeredOnly: !filters.endangeredOnly }); }} className="form-check-input" type="checkbox" role="switch" id="switchEndangeredOnly" checked={filters.endangeredOnly} />
-                                    <label className="form-check-label" for="switchEndangeredOnly">წითელ წიგნში შეტანილი</label>
+                                    <label className="form-check-label" htmlFor="switchEndangeredOnly">წითელ წიგნში შეტანილი</label>
                                 </div>
                             </a>
 
@@ -129,22 +151,22 @@ function Home() {
                             <h6 className="dropdown-header">ტიპი</h6>
                             <a className='dropdown-item'>
                                 <div className="form-check" onClick={() => onFilterReptileTypeClick("ALL")}>
-                                    <input className="form-check-input" type="radio" name="exampleRadios" id="radioTypeAll" value="ALL" checked={filters.reptileType == "ALL"} />
-                                    <label className="form-check-label" for="radioTypeAll">
+                                    <input className="form-check-input" type="radio" id="radioTypeAll" value="ALL" checked={filters.reptileType == "ALL"} />
+                                    <span className="form-check-label" htmlFor="radioTypeAll" style={{ userSelect: 'none' }}>
                                         ყველა
-                                    </label>
+                                    </span>
                                 </div>
                                 <div className="form-check" onClick={() => onFilterReptileTypeClick("SNAKE")}>
-                                    <input className="form-check-input" type="radio" name="exampleRadios" id="radioTypeSnakes" value="SNAKE" checked={filters.reptileType == "SNAKE"} />
-                                    <label className="form-check-label" for="radioTypeSnakes">
+                                    <input className="form-check-input" type="radio" id="radioTypeSnakes" value="SNAKE" checked={filters.reptileType == "SNAKE"} />
+                                    <span className="form-check-label" htmlFor="radioTypeSnakes" style={{ userSelect: 'none' }}>
                                         გველი
-                                    </label>
+                                    </span>
                                 </div>
                                 <div className="form-check" onClick={() => onFilterReptileTypeClick("LIZARD")}>
-                                    <input className="form-check-input" type="radio" name="exampleRadios" id="radioTypeLizards" value="LIZARD" checked={filters.reptileType == "LIZARD"} />
-                                    <label className="form-check-label" for="radioTypeLizards">
+                                    <input className="form-check-input" type="radio" id="radioTypeLizards" value="LIZARD" checked={filters.reptileType == "LIZARD"} />
+                                    <span className="form-check-label" htmlFor="radioTypeLizards" style={{ userSelect: 'none' }}>
                                         ხვლიკი
-                                    </label>
+                                    </span>
                                 </div>
                             </a>
                         </div>
@@ -167,7 +189,7 @@ function Home() {
                             სორტირება
                         </button>
 
-                        <div className={viewVisibility.sortDropDown == true ? "dropdown-menu show" : "dropdown-menu"} aria-labelledby="sortDropDownButton" for="sortDropDownButton" style={{ right: "0" }}>
+                        <div className={viewVisibility.sortDropDown == true ? "dropdown-menu show" : "dropdown-menu"} aria-labelledby="sortDropDownButton" htmlFor="sortDropDownButton" style={{ right: "0" }}>
                             {/* Venomous ^ */}
                             <a className='dropdown-item' onClick={() => { setSortBy({ isVenomous: "ASC" }) }}>
                                 <label className="form-check-label">შხამიანი ↾</label>
@@ -205,7 +227,7 @@ function Home() {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div >
 
             <div className='horizontal-paddings-15'>
                 <div className='row justify-content-start'>
@@ -239,7 +261,7 @@ function Home() {
                     </ul>
                 </nav>
             </footer>
-        </div>
+        </div >
     )
 }
 

@@ -106,14 +106,14 @@ function CreateNewReptilePage() {
             <form className='flex-vertical' style={{ width: "100%", marginTop: "25px" }}>
                 <div className='flex-horizontal'>
                     <div className='flex-vertical' style={{ width: "50%" }}>
-                        <label for="inputFirstName" style={{ textAlign: "start", paddingBottom: "5px" }}>სახელი</label>
+                        <label for="inputFirstName" style={{ textAlign: "start", paddingBottom: "5px" }}>დასახელება</label>
                         <input type="firstname" className="form-control" id="inputFirstname" placeholder="მაგ. ჩვეულებრივი ანკარა" onChange={(e) => { setReptileInfo({ ...reptileInfo, name: e.target.value }) }} />
                     </div>
 
                     <span style={{ width: "15px" }}></span>
 
                     <div className='flex-vertical' style={{ width: "50%" }}>
-                        <label for="inputLastName" style={{ textAlign: "start", paddingBottom: "5px" }}>გვარი</label>
+                        <label for="inputLastName" style={{ textAlign: "start", paddingBottom: "5px" }}>მეცნიერული სახელი</label>
                         <input type="lastname" className="form-control" id="inputFirstname" placeholder="მაგ. Natrix Natrix" onChange={(e) => { setReptileInfo({ ...reptileInfo, scientificName: e.target.value }) }} />
                     </div>
                 </div>

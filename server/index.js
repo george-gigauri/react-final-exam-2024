@@ -1,5 +1,5 @@
-const fetch = require('cross-fetch');
-
+const UserService = require("./services/UserService.js");
+const ReptileService = require("./services/ReptileService.js");
 const dotenv = require("dotenv").config();
 const express = require('express');
 const jsonServer = require('json-server');
@@ -19,24 +19,24 @@ app.use(middlewares);
 
 app.post("/sign-in", async (req, res) => {
   const { username, password } = req.body;
+  let response;
   if (username !== undefined && password !== undefined) {
+
     // Check if user exists with provided username
-    let usersRes = await fetch(`${Const.SERVER_BASE_URL}/users`)
-    if (usersRes.ok) {
-      let usersJson = await usersRes.json();
-      let usersWithUsername = usersJson.filter(u => u.username === username && u.password === password)
-      if (usersWithUsername.length > 0) {
-        let user = usersWithUsername[0];
-        const token = jwt.sign({ id: user.id, username: user.username }, TOKEN_SECRET);
-        return res.send({ jwtToken: token });
-      }
-    }
+    await UserService.getUserByUsernameAndPassword({ username, password }, (user) => {
+      const token = jwt.sign({ id: user.id, username: user.username }, TOKEN_SECRET);
+      response = res.send({ jwtToken: token });
+    }, (httpCode, errorMessage) => {
+      response = res.status(httpCode).send({ error: errorMessage });
+    });
   }
-  return res.status(400).send({ error: "ავტორიზაციის პარამეტრები არასწორია" });
+
+  return response;
 });
 
 app.post("/sign-up", async (req, res) => {
   const { username, firstName, lastName, password } = req.body;
+
   if (!Const.REGEX_USERNAME.test(username)) {
     return res.status(400).send({ error: "მომხმარებლის სახელი უნდა შეიცავდეს პატარა (Lowercase) ასოებს და მხოლოდ შემდეგ სიმბოლოებს: _ - ." });
   }
@@ -46,56 +46,54 @@ app.post("/sign-up", async (req, res) => {
   }
 
   // Check if user exists with provided username
-  let usersRes = await fetch(`${Const.SERVER_BASE_URL}/users`)
-  if (usersRes.ok) {
-    let usersJson = await usersRes.json();
-    let usersWithUsername = usersJson.filter(u => u.username === username)
-    if (usersWithUsername.length > 0) {
-      return res.status(400).send({ error: "მომხმარებელი ამ იუზერნეიმით უკვე არსებობს" });
-    }
+  let userNameExists = await UserService.findUserWithUsernameExists({ username: username });
+  if (userNameExists) {
+    return res.status(400).send({ error: "მომხმარებელი ამ იუზერნეიმით უკვე არსებობს" });
   }
 
   // Make new user record
-  let r = await fetch(`${Const.SERVER_BASE_URL}/users`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
+  await UserService.createUser(
+    {
       username: username,
       firstName: firstName,
       lastName: lastName,
       password: password
-    })
-  });
-
-  let rJson = await r.json();
-  if (r.ok) {
-    if (rJson.username === username) {
-      return res.status(200).send();
-    } else {
-      return res.status(500).send({ error: "მოხდა გაუთვალისწინებელი შეცდომა" });
+    },
+    (user) => {
+      if (user.username === username) {
+        return res.status(200).send(user);
+      } else {
+        return res.status(500).send({ error: "მოხდა გაუთვალისწინებელი შეცდომა" });
+      }
+    },
+    (httpCode, errorMessage) => {
+      return res.status(httpCode).send({ error: errorMessage });
     }
-  } else {
-    return res.status(500).send({ error: "სერვერის შეცდომა" })
-  }
+  )
 });
 
-app.get("/profile", [verifyToken], (req, res) => {
-  const { id, username } = req.user;
-  return res.send({ id, username });
+app.get("/reptiles/get-all", async (req, res) => {
+  const { page, pageSize, filters, sortBy } = req.query;
+  await ReptileService.getReptiles(
+    {
+      page: page, pageSize: pageSize,
+      filters: filters, sortBy: sortBy
+    },
+    (data) => {
+      return res.send(data);
+    },
+    (httpCode, errorMessage) => {
+      return res.status(httpCode).send({ error: errorMessage });
+    }
+  )
 });
 
 app.post("/reptiles/create-new", [verifyToken], async (req, res) => {
   const { name, scientificName, description, imageUrl, isVenomous, isEndangered, type } = req.body;
 
   // Make new reptile record
-  let r = await fetch(`${Const.SERVER_BASE_URL}/reptiles`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
+  await ReptileService.create(
+    {
       name: name,
       scientificName: scientificName,
       description: description,
@@ -103,45 +101,27 @@ app.post("/reptiles/create-new", [verifyToken], async (req, res) => {
       isEndangered: isEndangered,
       isVenomous: isVenomous,
       type: type
-    })
-  });
-
-  let rJson = await r.json();
-  if (r.ok) {
-    if (rJson.scientificName === scientificName) {
-      return res.status(200).send(rJson);
-    } else {
-      return res.status(500).send({ error: "მოხდა გაუთვალისწინებელი შეცდომა" });
+    },
+    (reptile) => {
+      return res.status(200).send(reptile);
+    },
+    (httpCode, errorMessage) => {
+      return res.status(httpCode).send({ error: errorMessage });
     }
-  } else {
-    return res.status(500).send({ error: "სერვერის შეცდომა" })
-  }
-
+  );
 });
 
 app.delete("/reptiles/:id/delete", [verifyToken], async (req, res) => {
   const { id } = req.params;
+  let response;
 
-  // Check if reptile exists with provided ID
-  let reptilesRes = await fetch(
-    `${Const.SERVER_BASE_URL}/reptiles/${id}`,
-    {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json"
-      }
-    }
-  );
+  await ReptileService.deleteById(id, () => {
+    response = res.send({ success: true });
+  }, (httpCode, errorMessage) => {
+    response = res.status(httpCode).send({ error: errorMessage });
+  });
 
-  if (!reptilesRes.ok) {
-    if (reptilesRes.status === 404) {
-      return res.status(404).send({ error: "ჩანაწერი ამ იდენტიფიკატორით ვერ მოიძებნა" });
-    } else {
-      return res.status(500).send({ error: "სერვერის შეცდომა" });
-    }
-  }
-
-  return res.send({ success: true });
+  return response;
 });
 
 app.use(router);

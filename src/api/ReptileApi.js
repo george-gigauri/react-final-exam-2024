@@ -10,6 +10,24 @@ class ReptileApi {
             .catch((err) => onError(err));
     }
 
+    static async fetchReptilesPaging(
+        { page, pageSize, filters, sortBy },
+        onSuccess, onError
+    ) {
+        const filtersQuery = Object.keys(filters)
+            .map(key => `${encodeURIComponent('filters[' + key + ']')}=${encodeURIComponent(filters[key])}`)
+            .join('&');
+
+        const sortbyQuery = Object.keys(sortBy)
+            .map(key => `${encodeURIComponent('sortBy[' + key + ']')}=${encodeURIComponent(sortBy[key])}`)
+            .join('&');
+
+        fetch(`${Const.SERVER_BASE_URL}/reptiles/get-all?page=${page}&pageSize=${pageSize}&${filtersQuery}&${sortbyQuery}`)
+            .then((res) => res.json())
+            .then((json) => onSuccess(json))
+            .catch((err) => onError(err));
+    }
+
     static async fetchReptile(id, onSuccess, onError) {
         fetch(Const.SERVER_BASE_URL + "/reptiles/" + id)
             .then((res) => res.json())
