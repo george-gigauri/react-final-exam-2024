@@ -1,9 +1,13 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import './Header.css'
 import { Navbar, Container, Nav, Modal, Button, Dropdown, Row } from 'react-bootstrap'
 import UserUtil from '../../util/UserUtil'
+import { AuthContext } from '../../pages/auth/AuthContext'
 
 export default function Header() {
+
+  const { isSignedIn, setJwtToken } = useContext(AuthContext);
+
   return (
     <Navbar dark lg collapseOnSelect style={{ backgroundColor: "aliceblue" }}>
       <Container>
@@ -17,17 +21,11 @@ export default function Header() {
             <Nav.Link href="/">მთავარი</Nav.Link>
             <Nav.Link href="/reptiles/create">დამატება</Nav.Link>
             {
-              (() => {
-                if (UserUtil.isSignedIn()) {
-                  return (
-                    <Nav.Link href="/" onClick={() => { UserUtil.logOut() }}>გასვლა</Nav.Link>
-                  )
-                } else {
-                  return (
-                    <Nav.Link href="/login">შესვლა</Nav.Link>
-                  )
-                }
-              })()
+
+              isSignedIn ?
+                <Nav.Link href="#logout" onClick={() => { UserUtil.logOut(); setJwtToken(null); }}>გასვლა</Nav.Link>
+                :
+                <Nav.Link href="/login">შესვლა</Nav.Link>
             }
           </Nav>
         </Navbar.Collapse>

@@ -1,18 +1,24 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import './ReptileItem.css';
+import { AuthContext } from '../../pages/auth/AuthContext';
 
 function ReptileItem({
     id,
     name,
     scientificName,
     isVenomous,
-    imageUrl
+    imageUrl,
+    onDelete
 }) {
+
+    const { isSignedIn } = useContext(AuthContext);
+
     return (
         <div className="col-12 col-md-6 col-lg-4" style={{ marginTop: "10px" }}>
 
-            <a href={'/reptiles/' + id} style={{ color: "black", textDecoration: "none" }}>
-                <div class="card" style={{ borderRadius: "12px", padding: "15px" }}>
+            <div class="card" style={{ borderRadius: "12px", padding: "15px" }}>
+
+                <a href={'/reptiles/' + id} style={{ color: "black", textDecoration: "none" }}>
                     <img src={imageUrl} className="card-img-top" style={{ borderRadius: "12px" }} />
                     <div class="card-body" style={{ marginTop: "10px" }}>
                         {(
@@ -35,11 +41,18 @@ function ReptileItem({
                             <span className="card-text" style={{ marginTop: "3px" }}>{scientificName}</span>
                         </div>
                     </div>
+                </a>
 
-                    <a href={'/reptiles/' + id} className="btn rounded-pill btn-primary" style={{ margin: "0px 0px 5px 0px" }}>დეტალურად</a>
+                <div className='flex-horizontal'>
+                    <a href={'/reptiles/' + id} className="btn rounded-pill btn-primary" style={{ width: "100%", margin: "0px 0px 5px 0px" }}>დეტალურად</a>
+                    {
+                        isSignedIn ? (
+                            <button className="btn rounded-pill btn-danger" style={{ margin: "0px 0px 5px 10px" }} onClick={onDelete}>წაშლა</button>
+                        ) : <div></div>
+                    }
                 </div>
-            </a>
-        </div>
+            </div>
+        </div >
     )
 }
 

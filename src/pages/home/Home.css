@@ -11,3 +11,22 @@ h6 {
     margin-top: 15px;
     margin-bottom: 15px;
 }
+
+.flex-horizontal {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: end;
+}
+
+.page-item>.page-link {
+    cursor: pointer;
+}
+
+.page-item .active>.page-link {
+    cursor: default;
+}
+
+.page-item .disabled>.page-link {
+    cursor: default;
+}

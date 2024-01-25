@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import AuthApi from '../../../api/AuthApi';
+import { AuthContext } from '../AuthContext';
 
 const usernameRegex = /^[a-z_.-]+$/;
 const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/;
 
 function LoginPage() {
+
+    const { setJwtToken } = useContext(AuthContext);
 
     const [username, setUsername] = useState(null);
     const [password, setPassword] = useState(null);
@@ -24,7 +27,8 @@ function LoginPage() {
         if (validateFields()) {
             AuthApi.signIn(
                 { username: username, password: password },
-                () => {
+                (jwt) => {
+                    setJwtToken(jwt);
                     alert("წარმატებული ავტორიზაცია");
                     window.location.href = "/";
                 },

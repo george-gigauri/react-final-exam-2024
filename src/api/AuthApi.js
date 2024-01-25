@@ -3,6 +3,7 @@ import Const from "../util/Const";
 class AuthApi {
 
     static async signIn({ username, password }, onSuccess, onError) {
+
         try {
             const res = await fetch(Const.SERVER_BASE_URL + "/sign-in", {
                 method: "POST",
@@ -18,7 +19,7 @@ class AuthApi {
             let result = await res.json();
             if (res.ok) {
                 localStorage.setItem(Const.LOCAL_STORAGE_KEY_JWT_TOKEN, result.jwtToken);
-                onSuccess();
+                onSuccess(localStorage.getItem(Const.LOCAL_STORAGE_KEY_JWT_TOKEN));
             } else {
                 onError(result.msg);
             }

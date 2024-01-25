@@ -21,3 +21,14 @@
 .card-text {
     color: gray;
 }
+
+.flex-horizontal {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+.flex-vertical {
+    display: flex;
+    flex-direction: column;
+}

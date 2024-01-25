@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Const from '../../util/Const';
 import ReptileApi from '../../api/ReptileApi';
 import UserUtil from '../../util/UserUtil';
+import { AuthContext } from '../auth/AuthContext';
 
 function CreateNewReptilePage() {
 
+    const { isSignedIn } = useContext(AuthContext);
     const [error, setError] = useState(null);
     const [isReptileTypeChooserOpen, setReptileTypeChooserVisibility] = useState(false);
     const [reptileInfo, setReptileInfo] = useState({ name: "", scientificName: "", description: "", imageUrl: null, isEndangered: false, isVenomous: false, type: null });
@@ -86,6 +88,14 @@ function CreateNewReptilePage() {
 
     return (
         <div className='container-lg' style={{ width: "35rem" }}>
+            {
+                (!isSignedIn) ?
+                    <div className="alert alert-warning" style={{ marginTop: "25px" }} role="alert">
+                        <span style={{ color: "orange" }}>არ ხართ ავტორიზებული, ზოგმა ფუნქციამ შესაძლოა არ იმუშავოს</span>
+                    </div>
+                    : <div></div>
+            }
+
             {
                 (error !== null && error !== '') ?
                     <div className="alert alert-danger" style={{ marginTop: "25px" }} role="alert">

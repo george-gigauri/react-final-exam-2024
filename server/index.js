@@ -119,6 +119,31 @@ app.post("/reptiles/create-new", [verifyToken], async (req, res) => {
 
 });
 
+app.delete("/reptiles/:id/delete", [verifyToken], async (req, res) => {
+  const { id } = req.params;
+
+  // Check if reptile exists with provided ID
+  let reptilesRes = await fetch(
+    `${Const.SERVER_BASE_URL}/reptiles/${id}`,
+    {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    }
+  );
+
+  if (!reptilesRes.ok) {
+    if (reptilesRes.status === 404) {
+      return res.status(404).send({ error: "ჩანაწერი ამ იდენტიფიკატორით ვერ მოიძებნა" });
+    } else {
+      return res.status(500).send({ error: "სერვერის შეცდომა" });
+    }
+  }
+
+  return res.send({ success: true });
+});
+
 app.use(router);
 
 app.listen(Const.SERVER_PORT, () => {

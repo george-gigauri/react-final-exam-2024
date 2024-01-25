@@ -53,6 +53,23 @@ class ReptileApi {
             onFailure(json.error);
         }
     }
+
+    static async deleteById(id, onSuccess, onFailure) {
+        let r = await fetch(`${Const.SERVER_BASE_URL}/reptiles/${id}/delete`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `JWT ${UserUtil.getCurrentToken()}`
+            }
+        });
+
+        let json = await r.json();
+        if (r.ok) {
+            onSuccess(json);
+        } else {
+            onFailure(json.error);
+        }
+    }
 }
 
 export default ReptileApi;
